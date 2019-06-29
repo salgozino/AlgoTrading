@@ -90,7 +90,7 @@ class WebSocketClass():
                 if  transactTime > (datetime.now()-timedelta(minutes=1)):
                     self.q_or.put(msg)
                 else:
-                    self.logger.debug(f'OR not sended to the queue because is an older orderReport.')
+                    self.logger.debug("OR not sended to the queue because is an older orderReport.")
                 if msg['orderReport']['status']=='REJECTED':
                     self.logger.info("The order was rejected: {}".format(msg['orderReport']['text']))
             else:
