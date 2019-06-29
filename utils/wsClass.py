@@ -92,9 +92,9 @@ class WebSocketClass():
                 else:
                     self.logger.debug(f'OR not sended to the queue because is an older orderReport.')
                 if msg['orderReport']['status']=='REJECTED':
-                    self.logger.info(f"The order was rejected: {msg['orderReport']['text']}")
+                    self.logger.info("The order was rejected: {}".format(msg['orderReport']['text']))
             else:
-                self.logger.debug(f"Error message received: {msg}")
+                self.logger.debug("Error message received: {}".format(msg))
         except:
             msg = simplejson.loads(message)
             if 'status' in msg:
@@ -220,7 +220,7 @@ class WebSocketClass():
         for i,ticker in enumerate(tickers):
             msg = self.make_MD_msg(ticker,entries)
             self.ws.send(msg)
-            self.logger.info(f"Mensaje de subscripcion a {ticker} enviado")
+            self.logger.info("Mensaje de subscripcion a {} enviado".format(ticker))
 
 
     def make_order_msg(self,ticker,price,quantity,side):
