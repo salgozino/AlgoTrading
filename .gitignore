@@ -2,3 +2,4 @@ __pycache__/
 logs/*
 strategies/_*
 _*
+!*/__init__.py
