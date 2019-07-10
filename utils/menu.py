@@ -68,12 +68,12 @@ def select_ticker():
         #Set a thread with the strategy to implement, in one specific ticker, or more than one.
         opcion = 0
         while (opcion < 1) or (opcion > 2):
-            print("Tickers disponibles para operar:\n * 1: RFX20Jun19\n * 2: DoAbr19")
+            print("Tickers disponibles para operar:\n * 1: RFX20Sep19\n * 2: DoAgo19")
             opcion = int(input("Elija la opcion deseada: "))
             if opcion == 1:
-                ticker = 'RFX20Jun19'
+                ticker = 'RFX20Sep19'
             elif opcion == 2:
-                ticker = 'DoAbr19'
+                ticker = 'DoAgo19'
                 
             
         max_loss = 0

@@ -1,3 +1,3 @@
-from strategies import base, followtheleader
+from strategies import base, FollowTheLeader
 
-__all__ = ["base","followtheleader"]
+__all__ = ["base","FollowTheLeader"]

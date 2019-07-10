@@ -4,7 +4,7 @@ from threading import Thread, Event
 import logging
 from utils.wsClass import WebSocketClass as WS
 from utils.menu import select_ticker, ask_login_credentials
-from strategies.followtheleader import FollowTheLeader
+from strategies.FollowTheLeader import FollowTheLeader
 
 def run(user=None, password=None, account=None, entorno=None,db=None):
     try:

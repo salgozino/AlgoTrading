@@ -33,7 +33,7 @@ class FollowTheLeader(EstrategiaBase):
                         side = str(side).upper()
                     if not((side == "BUY") or (side == "SELL")):
                         print('Opcion incorrecta, ingrese BUY, SELL o HOLD')
-                    self.logger.info(f"Se eligio estar del lado: {side}")
+                    self.logger.info("Se eligio estar del lado: {}".format(side))
                 except KeyboardInterrupt:
                     side = 'HOLD'
                     break
@@ -51,7 +51,7 @@ class FollowTheLeader(EstrategiaBase):
                         if quantity <= 0:
                             print('La cantidad debe ser mayor a 0')
                         else:
-                            self.logger.info(f"Se van a operar {quantity} unidades.")
+                            self.logger.info("Se van a operar {} unidades.".format(quantity))
                     except KeyboardInterrupt:
                         side = 'HOLD'
                         quantity = 0

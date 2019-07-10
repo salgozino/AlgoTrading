@@ -271,7 +271,7 @@ class EstrategiaBase():
                     self.logger.exception("The bot is taking position without checking the price, due to an error in the check_price function")
                 
                 if pass_check:
-                    print(f"INFO - I'm opening a new position of {side} at price {price}.")
+                    print("INFO - I'm opening a new position of {} at price {}.".format(side,price))
                     self.place_order(price,side,quantity)
                     self.order_status = self.get_order_status(max_timeout=60)
                     if self.order_status == 'FILLED':
@@ -294,7 +294,7 @@ class EstrategiaBase():
 
     def run(self):
         #Initialize the strategy
-        self.logger.debug(f"Inicializando estrategia {self.__class__.__name__}")
+        self.logger.debug("Inicializando estrategia {}".format(self.__class__.__name__))
         while not self.stopping.is_set():
             try:
                 if self.WS.ws.sock.connected:
