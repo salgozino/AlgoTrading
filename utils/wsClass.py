@@ -8,6 +8,7 @@ from queue import Queue
 import numpy as np
 import utils.PMY_REST as pmy
 import utils.DBtools
+from collections import OrderedDict
 
 #General Quee to process the data and save it to the database
 
@@ -38,7 +39,6 @@ class WebSocketClass():
         #Initialize the Websocket thread and the process thread.
         self.start()
 
-
     def start(self):
         try:
             self.t_ws = Thread(target=self.createWS, name='WebSocket')
@@ -62,7 +62,6 @@ class WebSocketClass():
         self.logger.debug("Initializing the thread to process the Messages")
         self.t_process.start()
         
-        
     def login(self):
         if not pmy.islogin:
             self.logger.debug("Logging to get the AUTH-TOKEN again")
@@ -75,11 +74,11 @@ class WebSocketClass():
         else:
             self.logger.debug("You are ALREADY logged in!")
 
-
     def __on_message(self, message):
         try:
             # self.logger.debug("A message was received!")
             msg = simplejson.loads(message)
+            #self.logger.debug(msg)
             msgType = msg['type'].upper()
             if msgType == 'MD':
                 self.q_md.put_nowait(msg)
@@ -106,17 +105,14 @@ class WebSocketClass():
         self.logger.error(error)
         self.ws.close()
 
-
     def __on_close(self):
 #        self.ws.close()
         self.logger.debug("WS cerrado.")
         pmy.islogin = False
 
-
     def __on_open(self):
         self.logger.debug("WS is open!")
 
-        
     def createWS(self):
         """
         Create the websocket with the information (token, WSEndPoint) initialized in the Primary Module.
@@ -134,7 +130,6 @@ class WebSocketClass():
             self.ws.run_forever(ping_interval=295)
         else:
             self.logger.error("Empty token. Are you sure that the logging was correct?")
-
 
     def extract_features(self, msg):
         """
@@ -173,7 +168,6 @@ class WebSocketClass():
         data['date'] = datetime.fromtimestamp(msg['timestamp']/1000)
         return data
 
-
     def process(self):
         """
         Function to process the messages from the queue, and add to the database.
@@ -181,10 +175,11 @@ class WebSocketClass():
         try:
             while not self.stopping.is_set():
                 r = None
-                if not self.q_md.empty():
-                    r = self.q_md.get()
-                elif not self.q_or.empty():
-                    r = self.q_or.get()
+                #primero me fijo sobre el q_or para procesar primero ordenes antes que market data
+                if not self.q_or.empty():
+                    r = self.q_or.get_nowait()
+                elif not self.q_md.empty():
+                    r = self.q_md.get_nowait()
                 # start = time()
                 if r != None:
                     table= "orderReport" if r['type'] == 'or' else utils.DBtools.rename_table(r['instrumentId']['symbol'])
@@ -200,28 +195,29 @@ class WebSocketClass():
         except Exception:
             self.logger.exception("Exception in the process function")
 
-
     def subscribeOR(self):
         try:
-            MSG_OSSuscription = simplejson.dumps({"type":"os","account":self.account,"snapshotOnlyActive":'true'})
-            self.ws.send(MSG_OSSuscription)
+            #Genero un orderDict pq en python 3.5 me cambia el orden continuamente sino y por ende recibo un msg error.
+            msg = simplejson.dumps(OrderedDict([("type", "os"), ("account", self.account),("snapshotOnlyActive","true")]))
+            #MSG_OSSuscription = simplejson.dumps({"type":"os","account":self.account,"snapshotOnlyActive":'true'})
+            self.ws.send(msg)
             self.logger.info("Mensaje de subscripcion al OR enviado.")
+            #self.logger.debug(msg)
         except:
             self.logger.exception("Error trying to subscribe to the Order Report")
 
-
     def make_MD_msg(self, ticker,entries):
         #Cretae the message to ask the Market Data of the entries for some ticker.
-        msg = simplejson.dumps({'type':"smd","level":1,"entries":entries,"products":[{"symbol":ticker,"marketId":"ROFX"}]})
+        msg = simplejson.dumps(OrderedDict([("type", "smd"), ("level", 1),("entries",entries),("products",[{"symbol":ticker,"marketId":"ROFX"}])]))
+        #msg = simplejson.dumps({'type':"smd","level":1,"entries":entries,"products":[{"symbol":ticker,"marketId":"ROFX"}]})
         return msg
-
 
     def subscribeMD(self, tickers, entries):
         for i,ticker in enumerate(tickers):
             msg = self.make_MD_msg(ticker,entries)
             self.ws.send(msg)
             self.logger.info("Mensaje de subscripcion a {} enviado".format(ticker))
-
+            #self.logger.debug(msg)
 
     def make_order_msg(self,ticker,price,quantity,side):
         sendOrder = {"type":"no",
@@ -233,11 +229,9 @@ class WebSocketClass():
                      "account":self.account}
         return simplejson.dumps(sendOrder)
     
-    
     def placeOrder(self,ticker,price,quantity,side):
         msg = self.make_order_msg(ticker,price,quantity,side)
         self.ws.send(msg)
-        
         
     def delete(self):
         #Delete the WS

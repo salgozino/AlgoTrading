@@ -67,8 +67,11 @@ class FollowTheLeader(EstrategiaBase):
                     if not self.stopping.is_set():
                         if side == 'BUY':
                             price = self.futuro_BI_price+2
+                            # price = self.futuro_OF_price
                         elif side == 'SELL':
                             price = self.futuro_OF_price-2
+                            #price = self.futuro_BI_price
+                            
                         if price == 0:
                             try:
                                 print("Waiting someone enqueue an order in the oposite side of we want")
