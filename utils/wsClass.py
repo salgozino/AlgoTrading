@@ -202,14 +202,12 @@ class WebSocketClass():
             #MSG_OSSuscription = simplejson.dumps({"type":"os","account":self.account,"snapshotOnlyActive":'true'})
             self.ws.send(msg)
             self.logger.info("Mensaje de subscripcion al OR enviado.")
-            #self.logger.debug(msg)
         except:
             self.logger.exception("Error trying to subscribe to the Order Report")
 
     def make_MD_msg(self, ticker,entries):
         #Cretae the message to ask the Market Data of the entries for some ticker.
         msg = simplejson.dumps(OrderedDict([("type", "smd"), ("level", 1),("entries",entries),("products",[{"symbol":ticker,"marketId":"ROFX"}])]))
-        #msg = simplejson.dumps({'type':"smd","level":1,"entries":entries,"products":[{"symbol":ticker,"marketId":"ROFX"}]})
         return msg
 
     def subscribeMD(self, tickers, entries):
@@ -217,17 +215,16 @@ class WebSocketClass():
             msg = self.make_MD_msg(ticker,entries)
             self.ws.send(msg)
             self.logger.info("Mensaje de subscripcion a {} enviado".format(ticker))
-            #self.logger.debug(msg)
 
     def make_order_msg(self,ticker,price,quantity,side):
-        sendOrder = {"type":"no",
-                     "product":{"symbol":ticker,
-                                "marketId":"ROFX"},
-                     "price":str(price),
-                     "quantity":str(quantity),
-                     "side":side,
-                     "account":self.account}
-        return simplejson.dumps(sendOrder)
+        msg = OrderedDict([("type", "no"), 
+                           ("product", OrderedDict([("symbol",ticker),
+                                                   ("marketId","ROFX")])),
+                           ("price",str(price)),
+                           ("quantity",str(quantity)),
+                           ("side",side),
+                           ("account",self.account)])
+        return simplejson.dumps(msg)
     
     def placeOrder(self,ticker,price,quantity,side):
         msg = self.make_order_msg(ticker,price,quantity,side)

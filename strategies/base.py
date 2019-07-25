@@ -4,6 +4,7 @@ import simplejson
 from time import sleep
 from datetime import datetime
 import utils.DBtools
+from collections import OrderedDict
 
 class EstrategiaBase():
     def __init__(self, WS,account='', stopping=Event(), comision = 0.109/100, cash_available=100000, max_loss = 150,db='remarkets.db'):
@@ -88,7 +89,7 @@ class EstrategiaBase():
                 elif self.order_status == 'CANCELLED':
                     self.clOrdId = ''
                     self.property = ''
-                    break
+                    return self.order_status
                 else:
                     timeout = max_timeout - (datetime.now()-init_time).seconds
                     if timeout<=0:
@@ -96,7 +97,7 @@ class EstrategiaBase():
                         print("TIMEOUT!, I'm cancelling the order")
                         self.cancel_order()
                         print("Order Status: {}".format(self.order_status))
-                        break
+                        return self.order_status
                 
                 if not avoid_stopping:
                     if self.stopping.is_set():
@@ -105,25 +106,22 @@ class EstrategiaBase():
                              self.cancel_order()
                          else:
                              self.logger.info("Order Status while loop cancelled by the user")
-                         break                         
+                         return self.order_status                        
         except:
             self.logger.error("Error in the get_order_status. The order and positions are cancelled")
             self.cancel_order()
-
-            
 
     def place_order(self,price,side,quantity,ticker=''):
         ticker = self.ticker_futuro if ticker == '' else ticker
         self.WS.placeOrder(ticker=ticker, price=price, side=side, quantity=quantity)
         self.logger.info("An order of {} was sent for {} of {} at price {}".format(side, quantity, ticker, price))
 
-
     def cancel_order(self):
         self.logger.debug("The actual order_status is {}".format(self.order_status))
         if 'NEW' in self.order_status:
-            cancelMsg = {"type":"co",
-                "clientId":self.clOrdId,
-                "proprietary":self.property}
+            cancelMsg = OrderedDict([("type","co"),
+                                    ("clientId",self.clOrdId),
+                                    ("proprietary",self.property)])
             msg = simplejson.dumps(cancelMsg)
             self.WS.ws.send(msg)
             self.logger.info("Sending message to cancell the order {} of property {}".format(self.clOrdId, self.property))
@@ -139,13 +137,11 @@ class EstrategiaBase():
         else:
             self.logger.info("There is no order to cancell.")
 
-
     def get_opossite_side(self):
         if self.side == 'BUY':
             return 'SELL'
         elif self.side == 'SELL':
             return 'BUY'
-
 
     def close_position(self, timeout = 20):
         """
@@ -186,7 +182,7 @@ class EstrategiaBase():
     def check_SL(self):
         if self.side == 'BUY':
             if self.futuro_LA_price < self.trailing_stop:
-                self.logger.info("Trailling stop activated in the {} position at price {}").format(self.side, self.futuro_LA_price)
+                self.logger.info("Trailling stop activated in the {} position at price {}".format(self.side, self.futuro_LA_price))
                 self.close_position()
                 print("Trailling Stop activated!")
         elif self.side == 'SELL':
@@ -273,7 +269,7 @@ class EstrategiaBase():
                 if pass_check:
                     print("INFO - I'm opening a new position of {} at price {}.".format(side,price))
                     self.place_order(price,side,quantity)
-                    self.order_status = self.get_order_status(max_timeout=60)
+                    self.get_order_status(max_timeout=90)
                     if self.order_status == 'FILLED':
                         self.logger.info("Starting the Strategy!")
                         self.open_price = price
