@@ -36,14 +36,11 @@ def create_db(db_file='rofex.db',schema='schema.sql'):
         cur = con.cursor()
         cur.executescript(fp.read())
 
-def creaate_ticket_table(table, db='rofex.db',conn=None):
+def create_ticket_table(table, db='rofex.db',conn=None):
     table = rename_table(table)
     if conn == None:
         conn = make_connection(db)
-    query = ("CREATE TABLE {} AS "
-            "SELECT * "
-            "FROM RFX20MAR19 "
-            "WHERE date IS NULL").format(table)
+    query = "CREATE TABLE {} (date TIMESTAMP,BI_price REAL,BI_size INTEGER,LA_date TIMESTAMP,LA_price REAL,LA_size INTEGER, OF_price REAL,OF_size INTEGER,OI_date TIMESTAMP,OI_size INTEGER,SE_date TIMESTAMP,SE_price REAL,TV REAL);".format(table)
     c = conn.cursor()
     c.execute(query)
     logger.debug("Table {} was created in the DB".format(table))
@@ -155,7 +152,7 @@ def read_last_row(table,db='rofex.db',conn=None):
             return None
     except:
         logger.debug("The table was not found, a new one is created")
-        creaate_ticket_table(table, db=db)
+        create_ticket_table(table, db=db)
         return None
     
 
@@ -163,10 +160,10 @@ def read_last_row_df(ticker,db='rofex.db',conn=None):
     """
     Read the last price of a ticker, from the DB
     """
-    table = rename_table(table)
+    ticker = rename_table(ticker)
     if conn == None:
         conn = make_connection(db)
-    query = 'SELECT * FROM "{}" ORDER BY date DESC LIMIT 1'.format(table)
+    query = 'SELECT * FROM "{}" ORDER BY date DESC LIMIT 1'.format(ticker)
     df = pd.read_sql(query, conn)
     return df
 
@@ -210,11 +207,4 @@ def read_all_tickers(db='rofex.db',conn=None):
     return ticks
     
 if __name__ == '__main__':
-    # print(read_last_price("RFX20Mar19"))
-    start = datetime.now()
-    # df = read_ticker('RFX20Mar19')
-    # print('Read ticker information takes:', (datetime.now()-start).total_seconds(), 'seconds')
-    # print(df.tail())
-    df = read_ticker("RFX20Jun19",start_date='2019-04-24')
-    print(df.head())
-    print('Read information takes:', (datetime.now()-start).total_seconds(), 'seconds')
+    create_ticket_table("test",'../remarkets.db')
