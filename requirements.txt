@@ -2,3 +2,4 @@ pandas
 numpy
 websocket-client
 simplejson
+requests
