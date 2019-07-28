@@ -26,7 +26,6 @@ def make_connection(db='rofex.db'):
     except sqlite3.Error as e:
         logger.error(e)
         create_db(db)
-        print(e)
     return None
 
 def create_db(db_file='rofex.db',schema='schema.sql'):
@@ -84,7 +83,7 @@ def export_entire_table(df, table, db='rofex.db', conn = None):
             logger.debug("No date column for set index in new table")
     df.to_sql(table, conn, if_exists='replace')
     conn.commit()
-    print("New Table generated")
+    logger.info("New Table generated")
     
 def append_rows(df,table, db='rofex.db', conn = None):
     """
@@ -220,7 +219,7 @@ def read_orders(ticker, start_date='', db='rofex.db', conn=None):
         query = "SELECT date, avgPx, cumQty, side FROM ORDERREPORT WHERE instrumentId_symbol LIKE '{}' and STATUS = 'FILLED' and date>date('{}')".format(ticker, start_date)
     df = pd.read_sql(query, conn)
     #df.set_index('date',inplace=True)
-    print(df.tail()) 
+    #print(df.tail()) 
     return df
 
 if __name__ == '__main__':
