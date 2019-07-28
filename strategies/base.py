@@ -243,10 +243,19 @@ class EstrategiaBase():
         self.logger.info("The strategy was stopped succesfully")
 
     def check_price(self,side,price_operation,operational_factor=0.1):
+        price = self.futuro_LA_price
         if side == "BUY":
-            return price_operation>self.futuro_LA_price*(1-operational_factor)
+            if price is None:
+                price = self.futuro_BI_price
+            if price is None:
+                price = self.futuro_OF_price
+            return price_operation>price*(1-operational_factor)
         else:
-            return price_operation<self.futuro_LA_price*(1+operational_factor)
+            if price is None:
+                price = self.futuro_OF_price
+            if price is None:
+                price = self.futuro_BI_price
+            return price_operation<price*(1+operational_factor)
         
     def position_manager(self,price,side,quantity):
         if self.is_running:
