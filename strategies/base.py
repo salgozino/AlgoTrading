@@ -244,18 +244,13 @@ class EstrategiaBase():
 
     def check_price(self,side,price_operation,operational_factor=0.1):
         price = self.futuro_LA_price
-        if side == "BUY":
-            if price is None:
-                price = self.futuro_BI_price
-            if price is None:
-                price = self.futuro_OF_price
-            return price_operation>price*(1-operational_factor)
-        else:
-            if price is None:
-                price = self.futuro_OF_price
-            if price is None:
-                price = self.futuro_BI_price
-            return price_operation<price*(1+operational_factor)
+        print(price)
+        if (price is None) or (price == 0.):
+            price = self.futuro_BI_price
+        if  (price is None) or (price == 0.):
+            price = self.futuro_OF_price
+        print(price)
+        return (price_operation<price*(1+operational_factor)) & (price_operation>price*(1-operational_factor))
         
     def position_manager(self,price,side,quantity):
         if self.is_running:
