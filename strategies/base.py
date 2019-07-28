@@ -45,7 +45,6 @@ class EstrategiaBase():
 
     def update_current_prices(self):
         """
-        
         Read the current prices from the database
         The info readed from the DB is a dict with the last, offer and bid data (and size, and other parameters)
         """
@@ -244,12 +243,12 @@ class EstrategiaBase():
 
     def check_price(self,side,price_operation,operational_factor=0.1):
         price = self.futuro_LA_price
-        print(price)
+        #print(price)
         if (price is None) or (price == 0.):
             price = self.futuro_BI_price
         if  (price is None) or (price == 0.):
             price = self.futuro_OF_price
-        print(price)
+        #print(price)
         return (price_operation<price*(1+operational_factor)) & (price_operation>price*(1-operational_factor))
         
     def position_manager(self,price,side,quantity):

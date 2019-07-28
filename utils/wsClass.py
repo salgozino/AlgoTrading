@@ -13,12 +13,12 @@ from collections import OrderedDict
 #General Quee to process the data and save it to the database
 
 #queue for the strategy class, unique with the order reports 
-q_orders = Queue()
+#q_orders = Queue()
 
 
 class WebSocketClass():
     def __init__(self, user="user1", password="password", entorno=1, account='',
-                 stopping=Event(), q_md = Queue(), q_or=Queue(), db='../remarkets.db'):
+                 stopping=Event(), q_md = Queue(), q_or=Queue(), db='../remarkets.db', export_to_db = False):
         """
         Initialize the websocket connection, until a stopping event is activated.
         """
@@ -36,6 +36,7 @@ class WebSocketClass():
         self.t_process = None #Thread for process the messages
         self.is_logged = False
         
+        self.export_to_db = export_to_db
         #Initialize the Websocket thread and the process thread.
         self.start()
 
@@ -56,11 +57,12 @@ class WebSocketClass():
             conn_timeout -= 1
         if not conn_timeout:
             self.logger.info("Could not connect to WS! Exiting.")
-            
-        self.t_process = Thread(target=self.process, name='Process Messages')
-        self.t_process.daemon = True
-        self.logger.debug("Initializing the thread to process the Messages")
-        self.t_process.start()
+        
+        if self.export_to_db:
+            self.t_process = Thread(target=self.process, name='Process Messages')
+            self.t_process.daemon = True
+            self.logger.debug("Initializing the thread to process the Messages")
+            self.t_process.start()
         
     def login(self):
         if not pmy.islogin:
@@ -81,13 +83,19 @@ class WebSocketClass():
             #self.logger.debug(msg)
             msgType = msg['type'].upper()
             if msgType == 'MD':
-                self.q_md.put_nowait(msg)
+                try:
+                    self.q_md.put(msg)
+                except:
+                    self.logger.exception("Exception trying to put MD msg in the queue")
                 # # print("Msg sended to the MD queue")
             elif msgType == 'OR':
                 fmt = '%Y%m%d-%H:%M:%S.%f-0300'
                 transactTime = datetime.strptime(msg['orderReport']['transactTime'],fmt)
                 if  transactTime > (datetime.now()-timedelta(minutes=1)):
-                    self.q_or.put(msg)
+                    try:
+                        self.q_or.put(msg)
+                    except:
+                        self.logger.exception("Exceptrio trying to put OR msg in the queue")
                 else:
                     self.logger.debug("OR not sended to the queue because is an older orderReport.")
                 if msg['orderReport']['status']=='REJECTED':
@@ -238,8 +246,9 @@ class WebSocketClass():
             self.ws.close()
             if self.t_ws.isAlive():
                 self.t_ws.join()
-            if self.t_process.isAlive():
-                self.t_process.join()
+            if self.export_to_db:
+                if self.t_process.isAlive():
+                    self.t_process.join()
             self.logger.debug("All threads and websocket closed")
         except:
             self.logger.exception("Error trying to close the WS and close the thread.")

@@ -1,4 +1,4 @@
-from threading import Thread, Event
+from threading import Event
 import logging
 from utils.wsClass import WebSocketClass as WS
 from utils.menu import ask_login_credentials
@@ -14,7 +14,7 @@ def run(user=None, password=None, account=None, entorno=None,db=None):
             user, password, account, entorno,db = ask_login_credentials()
         
         ws = WS(user=user,account=account,entorno=entorno,password=password,
-                db=db,stopping=stopping)
+                db=db,stopping=stopping, export_to_db = True)
         
         # Subscribe to the OrderReport messages
         ws.subscribeOR()
@@ -36,7 +36,7 @@ def run(user=None, password=None, account=None, entorno=None,db=None):
                     ws.delete()
             except:
                 logger.exception("Error killing the bot...")
-        logger.debug("You've killed me. I will revenge. Hasta la vista, baby.")
+        logger.info("You've killed me. I will revenge. Hasta la vista, baby.")
     except:
         logger.exception("Exception in the botMiron")
         
