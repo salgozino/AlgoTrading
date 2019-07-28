@@ -6,7 +6,6 @@ At the moment, we have two tickers that we are receiveing the stock market data,
 """
 import sqlite3
 import pandas as pd
-from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -205,6 +204,24 @@ def read_all_tickers(db='rofex.db',conn=None):
     for t in tickers:
         ticks.append(t[0])
     return ticks
+
+   
+def read_orders(ticker, start_date='', db='rofex.db', conn=None):
+    """
+    Read the filled orders of a ticker, from the specified start date.
+    The start date must be a string with the format '%Y-%m-%d'
+    """
     
+    if conn == None:
+        conn = make_connection(db)
+    if start_date == '':
+        query = "SELECT date, avgPx, cumQty, side FROM ORDERREPORT WHERE instrumentId_symbol LIKE '{}' and STATUS = 'FILLED'".format(ticker)
+    else:
+        query = "SELECT date, avgPx, cumQty, side FROM ORDERREPORT WHERE instrumentId_symbol LIKE '{}' and STATUS = 'FILLED' and date>date('{}')".format(ticker, start_date)
+    df = pd.read_sql(query, conn)
+    #df.set_index('date',inplace=True)
+    print(df.tail()) 
+    return df
+
 if __name__ == '__main__':
     create_ticket_table("test",'../remarkets.db')
