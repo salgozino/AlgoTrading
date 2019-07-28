@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+import os
 
 def createLogger():
     logger = logging.getLogger()
@@ -8,6 +9,9 @@ def createLogger():
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     # create a file handler
+    #create the dir for logs if not exist.
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
     today = datetime.today().strftime('%Y-%m-%d')
     fh = logging.FileHandler('logs/' + today + ' log.log')
     fh.setLevel(logging.DEBUG)
