@@ -177,9 +177,9 @@ class WebSocketClass():
                 r = None
                 #primero me fijo sobre el q_or para procesar primero ordenes antes que market data
                 if not self.q_or.empty():
-                    r = self.q_or.get_nowait()
+                    r = self.q_or.get()
                 elif not self.q_md.empty():
-                    r = self.q_md.get_nowait()
+                    r = self.q_md.get()
                 # start = time()
                 if r != None:
                     table= "orderReport" if r['type'] == 'or' else utils.DBtools.rename_table(r['instrumentId']['symbol'])
