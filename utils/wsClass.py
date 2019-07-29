@@ -89,15 +89,15 @@ class WebSocketClass():
                     self.logger.exception("Exception trying to put MD msg in the queue")
                 # # print("Msg sended to the MD queue")
             elif msgType == 'OR':
-                fmt = '%Y%m%d-%H:%M:%S.%f-0300'
-                transactTime = datetime.strptime(msg['orderReport']['transactTime'],fmt)
-                if  transactTime > (datetime.now()-timedelta(minutes=1)):
-                    try:
-                        self.q_or.put(msg)
-                    except:
-                        self.logger.exception("Exceptrio trying to put OR msg in the queue")
-                else:
-                    self.logger.debug("OR not sended to the queue because is an older orderReport.")
+                #fmt = '%Y%m%d-%H:%M:%S.%f-0300'
+                #transactTime = datetime.strptime(msg['orderReport']['transactTime'],fmt)
+                #if  transactTime > (datetime.now()-timedelta(minutes=1)):
+                try:
+                    self.q_or.put(msg)
+                except:
+                    self.logger.exception("Exception trying to put OR msg in the queue")
+                #else:
+                #    self.logger.debug("OR not sended to the queue because is an older orderReport.")
                 if msg['orderReport']['status']=='REJECTED':
                     self.logger.info("The order was rejected: {}".format(msg['orderReport']['text']))
             else:
