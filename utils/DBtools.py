@@ -219,7 +219,7 @@ def read_orders(ticker, start_date='', db='rofex.db', conn=None):
         query = "SELECT date, avgPx, cumQty, side FROM ORDERREPORT WHERE instrumentId_symbol LIKE '{}' and STATUS = 'FILLED' and date>date('{}')".format(ticker, start_date)
     df = pd.read_sql(query, conn)
     #df.set_index('date',inplace=True)
-    #print(df.tail()) 
+    #print(df) 
     return df
 
 if __name__ == '__main__':
