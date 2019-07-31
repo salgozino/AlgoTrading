@@ -27,11 +27,6 @@ class EstrategiaBase():
         self.is_running = False
         self.open_price = 0.
         self.trailing_stop = 0.
-        self.quantity = 0
-        self.side = ''
-        self.avgPx = 0.
-        self.cumQty = 0.
-        self.leavesQty = 0.
         self.max_loss = max_loss
         
         #Datos de la orden que estamos ejecutando.
@@ -39,6 +34,11 @@ class EstrategiaBase():
         self.order_status = ''  #Current order_status
         self.clOrdId = ''   #Current orderID
         self.property = ''  #Current property of the order
+        self.quantity = 0   #quantity to trade
+        self.side = ''      #side of the opeartion
+        self.avgPx = 0.     #average Price of the operation
+        self.cumQty = 0.    #quantity already filled
+        self.leavesQty = 0. #quantity to fill in the order    
         
         #Logger
         self.logger = logging.getLogger(__name__)
@@ -333,3 +333,10 @@ class EstrategiaBase():
         self.logger.debug("Estrategia was stopped by user. I'll be close all my opened positions.")
         self.stop_strategy()
         
+    def clean_order_var(self):
+        self.clOrdId = ''
+        self.property = ''
+        self.order_status = ''
+        self.avgPx = 0.
+        self.leavesQty = 0.
+        self.cumQty = 0.
