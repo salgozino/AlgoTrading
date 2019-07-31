@@ -56,9 +56,9 @@ def select_tickers_pase():
         ticker_pase = 'DOP ' + mes_corto + '/' + mes_largo + ' 19'
         print('Su ticker de pase es:', ticker_pase)
     else:
-        ticker_corto = 'RFX20Jun19'
-        ticker_largo = 'RFX20Sep19'
-        ticker_pase = "RFXP 06/09 19"
+        ticker_corto = 'RFX20Sep19'
+        ticker_largo = 'RFX20Dic19'
+        ticker_pase = "RFXP 09/12 19"
         print('El ticker corto elegido fue: ', ticker_corto)
         print('El ticker largo elegido fue: ', ticker_largo)
         print('Su ticker de pase es:', ticker_pase)
