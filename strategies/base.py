@@ -272,7 +272,7 @@ class EstrategiaBase():
                 self.update_trailling_stop()
                 self.check_SL()
             elif side != self.side and self.is_running:
-                # self.logger.info(f'The strategy said that we have to change the {self.side} position to {side}')
+                # self.logger.info("The strategy said that we have to change the {} position to {}".format(self.side,side))
                 if side != 'HOLD':
                     self.close_position()
         else:
@@ -294,14 +294,9 @@ class EstrategiaBase():
                         self.side = side
                         self.update_trailling_stop()
                         self.is_running = True
-                        self.property = ''
-                        self.clOrdId = ''
-                    elif self.order_status == 'REJECTED':
-                        self.property = ''
-                        self.clOrdId = ''
-                    elif self.order_status == 'CANCELLED':
-                        self.property = ''
-                        self.clOrdId = ''
+                        self.clean_order_var()
+                    elif self.order_status in ['REJECTED', 'CANCELLED']:
+                        self.clean_order_var()
                 else:
                     self.logger.info("The price adopted did not pasas the check with the price {}.".format(price))
 
