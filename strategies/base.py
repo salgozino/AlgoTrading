@@ -83,7 +83,9 @@ class EstrategiaBase():
                     self.clOrdId = or_msg['clOrdId']
                     self.property = or_msg['proprietary']
                     self.logger.info("Order status: {}".format(self.order_status))
+                
                 if 'PENDING' in self.order_status:
+                    #if status is PENDING, not cancell the order.
                     pass
                 elif self.order_status == 'CANCELLED':
                     self.clOrdId = ''
@@ -162,8 +164,8 @@ class EstrategiaBase():
                     price = self.futuro_OF_price if new_side == 'BUY' else self.futuro_BI_price
                     self.place_order(price,new_side,self.quantity)
 
-            self.update_profit()
-            self.logger.info("{} {} Position/s was closed at price {}".format(self.quantity, self.side, self.futuro_LA_price))
+            self.update_profit(price)
+            self.logger.info("{} {} Position/s was closed at price {}".format(self.quantity, self.side, price))
             self.logger.info("The profit of the trade was {}".format(self.trade_profit))
             self.is_running = False
             self.trailing_stop = 0.
@@ -183,36 +185,37 @@ class EstrategiaBase():
             if self.futuro_LA_price < self.trailing_stop:
                 self.logger.info("Trailling stop activated in the {} position at price {}".format(self.side, self.futuro_LA_price))
                 self.close_position()
-                print("Trailling Stop activated!")
         elif self.side == 'SELL':
             if self.futuro_LA_price > self.trailing_stop:
                 self.logger.info("Trailling stop activated in the {} position at price {}".format(self.side, self.futuro_LA_price))
                 self.close_position()
-                print("Trailling Stop activated!")
 
     def update_trailling_stop(self):
         if self.trailing_stop == 0:
             self.trailing_stop = self.open_price - self.max_loss if self.side == "BUY" else self.open_price + self.max_loss
             self.logger.info("Trailling Stop Updated at level {}".format(self.trailing_stop))
-            print("Trailling Stop Updated at level {}".format(self.trailing_stop))
         else:
             if self.side == 'BUY':
                 if self.futuro_LA_price-self.max_loss > self.trailing_stop:
                     self.trailing_stop = self.futuro_LA_price - self.max_loss
                     self.logger.info("Trailling Stop Updated at level {}".format(self.trailing_stop))
-                    print("Trailling Stop Updated at level {}".format(self.trailing_stop))
             elif self.side == 'SELL':
                 if self.futuro_LA_price+self.max_loss < self.trailing_stop:
                     self.trailing_stop = self.futuro_LA_price + self.max_loss
                     self.logger.info("Trailling Stop Updated at level {}".format(self.trailing_stop))
-                    print("Trailling Stop Updated at level {}".format(self.trailing_stop))
 
-    def update_profit(self):
-        if self.side == 'BUY':
-            self.trade_profit = self.futuro_LA_price - self.open_price
-        elif self.side == 'SELL':
-            self.trade_profit = self.open_price - self.futuro_LA_price
-        print("Current proffit: {}".format(self.trade_profit))
+    def update_profit(self, price = 0.):
+        if price == 0:
+            if self.side == 'BUY':
+                self.trade_profit = self.futuro_LA_price - self.open_price
+            elif self.side == 'SELL':
+                self.trade_profit = self.open_price - self.futuro_LA_price
+            print("Current proffit: {}".format(self.trade_profit))
+        else:
+            if self.side == 'BUY':
+                self.trade_profit = price - self.open_price
+            elif self.side == 'SELL':
+                self.trade_profit = self.open_price - price
 
     def signal_maker(self):
         """
