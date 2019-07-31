@@ -136,14 +136,14 @@ def vwap(df,column_price_name, column_volume_name):
     vwap['VWAP'] = (p * q).cumsum() / q.cumsum()
     return vwap
     
-def ROC(df, n=2):
+def ROC(df, n=2, column_name='Close'):
     """
     :param df: pandas.DataFrame
     :param n: cant. de offset
     :return: pandas.DataFrame
     """
-    M = df['Close'].diff(n - 1)
-    N = df['Close'].shift(n - 1)
+    M = df[column_name].diff(n - 1)
+    N = df[column_name].shift(n - 1)
     df['ROC'] = pd.Series(M / N, name='ROC_' + str(n))
     return df
     
