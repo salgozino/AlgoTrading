@@ -99,7 +99,8 @@ class EstrategiaBase():
                     self.clOrdId = ''
                     self.property = ''
                     return self.order_status
-                else:
+                elif not 'FILLED':
+                    #if the order was not filled, reached a timeout
                     timeout = max_timeout - (datetime.now()-init_time).seconds
                     if timeout<=0:
                         self.logger.info("TIMEOUT waiting to fill the order. I'm Cancelling the order")
@@ -288,7 +289,7 @@ class EstrategiaBase():
                     self.get_order_status(max_timeout=90)
                     if self.order_status == 'FILLED':
                         self.logger.info("Starting the Strategy!")
-                        self.open_price = price
+                        self.open_price = self.avgPx
                         self.quantity = quantity
                         self.side = side
                         self.update_trailling_stop()
