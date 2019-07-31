@@ -29,6 +29,9 @@ class EstrategiaBase():
         self.trailing_stop = 0.
         self.quantity = 0
         self.side = ''
+        self.avgPrice = 0.
+        self.cumQty = 0.
+        self.leavesQty = 0.
         self.max_loss = max_loss
         
         #Datos de la orden que estamos ejecutando.
@@ -80,6 +83,9 @@ class EstrategiaBase():
                     # if 'origclOrdId' in or_msg:
                         # origclOrdId = or_msg['clOrdId']
                     self.order_status = or_msg['status']
+                    self.avgPx = or_msg['order']['avgPx']
+                    self.cumQty = or_msg['order']['cumQty']
+                    self.leavesQty = or_msg['order']['leavesQty']
                     self.clOrdId = or_msg['clOrdId']
                     self.property = or_msg['proprietary']
                     self.logger.info("Order status: {}".format(self.order_status))
@@ -170,6 +176,9 @@ class EstrategiaBase():
             self.is_running = False
             self.trailing_stop = 0.
             self.open_price = 0.
+            self.avgPrice = 0.
+            self.leavesQty = 0.
+            self.cumQty = 0.
             self.side = ''
             self.quantity = 0.
             self.total_profit = self.total_profit + self.trade_profit
