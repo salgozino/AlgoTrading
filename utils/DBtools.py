@@ -34,7 +34,7 @@ def create_db(db_file='rofex.db',schema='schema.sql'):
         cur = con.cursor()
         cur.executescript(fp.read())
 
-def create_ticket_table(table, db='rofex.db',conn=None):
+def create_ticker_table(table, db='rofex.db',conn=None):
     table = rename_table(table)
     if conn == None:
         conn = make_connection(db)
@@ -150,7 +150,7 @@ def read_last_row(table,db='rofex.db',conn=None):
             return None
     except:
         logger.debug("The table was not found, a new one is created")
-        create_ticket_table(table, db=db)
+        create_ticker_table(table, db=db)
         return None
     
 
@@ -223,4 +223,4 @@ def read_orders(ticker, start_date='', db='rofex.db', conn=None):
     return df
 
 if __name__ == '__main__':
-    create_ticket_table("test",'../remarkets.db')
+    create_ticker_table("test",'../remarkets.db')
