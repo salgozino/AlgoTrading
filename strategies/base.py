@@ -157,7 +157,7 @@ class EstrategiaBase():
             price = self.futuro_OF_price if new_side == 'BUY' else self.futuro_BI_price
             self.place_order(price,new_side,self.quantity)
             self.order_status = ''
-            while self.order_status not in ["CANCELLED","FILLED"]:
+            while self.order_status not in ["FILLED"]:
                 self.get_order_status(max_timeout=15)
                 if self.order_status == 'CANCELLED':
                     self.update_current_prices()
