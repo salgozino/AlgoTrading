@@ -133,8 +133,8 @@ def vwap(df,column_price_name, column_volume_name):
     df.fillna(method='ffill', inplace=True)
     q = df[column_volume_name].values
     p = df[column_price_name].values
-    vwap['VWAP'] = (p * q).cumsum() / q.cumsum()
-    return vwap
+    df['VWAP'] = (p * q).cumsum() / q.cumsum()
+    return df
     
 def ROC(df, n=2, column_name='Close'):
     """
