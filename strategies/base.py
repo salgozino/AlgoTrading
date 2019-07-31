@@ -29,7 +29,7 @@ class EstrategiaBase():
         self.trailing_stop = 0.
         self.quantity = 0
         self.side = ''
-        self.avgPrice = 0.
+        self.avgPx = 0.
         self.cumQty = 0.
         self.leavesQty = 0.
         self.max_loss = max_loss
@@ -82,12 +82,14 @@ class EstrategiaBase():
                     or_msg = data['orderReport']
                     # if 'origclOrdId' in or_msg:
                         # origclOrdId = or_msg['clOrdId']
+                    
                     self.order_status = or_msg['status']
-                    self.avgPx = or_msg['order']['avgPx']
-                    self.cumQty = or_msg['order']['cumQty']
-                    self.leavesQty = or_msg['order']['leavesQty']
                     self.clOrdId = or_msg['clOrdId']
                     self.property = or_msg['proprietary']
+                    if 'avgPx' in or_msg.keys():
+                        self.cumQty = or_msg['cumQty']
+                        self.avgPx = or_msg['avgPx']
+                        self.leavesQty = or_msg['leavesQty']
                     self.logger.info("Order status: {}".format(self.order_status))
                 
                 if 'PENDING' in self.order_status:
@@ -101,9 +103,8 @@ class EstrategiaBase():
                     timeout = max_timeout - (datetime.now()-init_time).seconds
                     if timeout<=0:
                         self.logger.info("TIMEOUT waiting to fill the order. I'm Cancelling the order")
-                        print("TIMEOUT!, I'm cancelling the order")
                         self.cancel_order()
-                        print("Order Status: {}".format(self.order_status))
+                        self.logger.info("Order Status: {}".format(self.order_status))
                         return self.order_status
                 
                 if not avoid_stopping:
@@ -115,7 +116,7 @@ class EstrategiaBase():
                              self.logger.info("Order Status while loop cancelled by the user")
                          return self.order_status                        
         except:
-            self.logger.error("Error in the get_order_status. The order and positions are cancelled")
+            self.logger.exception("Error in the get_order_status. The order and positions are cancelled")
             self.cancel_order()
 
     def place_order(self,price,side,quantity,ticker=''):
