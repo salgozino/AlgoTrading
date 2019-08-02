@@ -21,7 +21,7 @@ def run(user=None, password=None, account=None, entorno=None,db=None):
         
         #Subscribe to MD
         entries = ["LA","BI","OF","SE","OI","TV","IV"]
-        tickers = ["RFX20Sep19","RFX20Dic19","I.RFX20","RFXP 09/12 19","DOJul19","DOAgo19","DOSep19","DOP 07/08 19","DOP 08/09 19"]
+        tickers = ["RFX20Sep19","RFX20Dic19","I.RFX20","RFXP 09/12 19","DOAgo19","DOSep19","DOP 08/09 19"]
         ws.subscribeMD(entries=entries,tickers=tickers)
         
         
