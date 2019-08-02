@@ -69,7 +69,7 @@ class EstrategiaBase():
     def get_order_status(self, max_timeout=30,confirmation_status = ['FILLED','REJECTED'], avoid_stopping = False):
         #The avoid_stopping is to avoid re cancel the order, due to the stopping event.
         init_time = datetime.now()
-        timeout = max_timeout
+        
         #Reinicio el order_status
         self.order_status = ''
         #Lo transformo a lista por si envio un string unico.
@@ -91,7 +91,7 @@ class EstrategiaBase():
                         self.avgPx = or_msg['avgPx']
                         self.leavesQty = or_msg['leavesQty']
                     self.logger.info("Order status: {}".format(self.order_status))
-                
+ 
                 if 'PENDING' in self.order_status:
                     #if status is PENDING, not cancell the order.
                     pass
@@ -99,9 +99,10 @@ class EstrategiaBase():
                     self.clOrdId = ''
                     self.property = ''
                     return self.order_status
-                elif not 'FILLED':
+                elif self.order_status != 'FILLED':
                     #if the order was not filled, reached a timeout
                     timeout = max_timeout - (datetime.now()-init_time).seconds
+                    
                     if timeout<=0:
                         self.logger.info("TIMEOUT waiting to fill the order. I'm Cancelling the order")
                         self.cancel_order()
