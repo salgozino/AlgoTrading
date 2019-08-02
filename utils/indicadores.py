@@ -142,9 +142,7 @@ def ROC(df, n=2, column_name='Close'):
     :param n: cant. de offset
     :return: pandas.DataFrame
     """
-    M = df[column_name].diff(n - 1)
-    N = df[column_name].shift(n - 1)
-    df['ROC'] = pd.Series(M / N, name='ROC_' + str(n))
+    df['ROC'] = pd.Series(np.gradient(df[column_name]), df.index, name='ROC_{}'.format(n))
     return df
     
 def getVolbyPrice(df,column='price_LA',column_size = 'size_LA',delta_precio=25):
