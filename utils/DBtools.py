@@ -83,7 +83,7 @@ def export_entire_table(df, table, db='rofex.db', conn = None):
             logger.debug("No date column for set index in new table")
     df.to_sql(table, conn, if_exists='replace')
     conn.commit()
-    logger.info("New Table generated")
+    logger.info("New Table generated for ticker {}".format(table))
     
 def append_rows(df,table, db='rofex.db', conn = None):
     """
