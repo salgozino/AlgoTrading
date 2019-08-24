@@ -285,7 +285,6 @@ class EstrategiaBase():
                     self.logger.exception("The bot is taking position without checking the price, due to an error in the check_price function")
                 
                 if pass_check:
-                    print("INFO - I'm opening a new position of {} at price {}.".format(side,price))
                     self.place_order(price,side,quantity)
                     self.get_order_status(max_timeout=90)
                     if self.order_status == 'FILLED':
@@ -295,6 +294,7 @@ class EstrategiaBase():
                         self.side = side
                         self.update_trailling_stop()
                         self.is_running = True
+                        self.logger.info("The Order was filled at price {}".format(self.open_price))
                         self.clean_order_var()
                     elif self.order_status in ['REJECTED', 'CANCELLED']:
                         self.clean_order_var()
