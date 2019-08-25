@@ -6,7 +6,15 @@ import simplejson
 from enum import Enum
 import logging
 
+
+import os
+os.environ['no_proxy'] = '*' 
 logger = logging.getLogger(__name__)
+proxies = {
+  "http": None,
+  "https": None,
+}
+
 
 class Entorno(Enum):
     sim = 1
@@ -73,18 +81,18 @@ def requestAPI(url):
     else:
         global token
         headers = {'X-Auth-Token': token}
-        r = requests.get(url, headers=headers, verify=verifyHTTPs)
+        r = requests.get(url, headers=headers, verify=verifyHTTPs, proxies=proxies)
         return r
 
 def md_historica(symbol, fechaini, fechafin):
     url = history_endpoint.format(s=symbol,fi=fechaini,ff=fechafin)
-    r = requests.get(url)
+    r = requests.get(url, proxies=proxies)
     return simplejson.loads(r.content)
     
 def md_historica_ohlc(symbol, fechaini, fechafin,horaini,horafin):
     url = historyOHLC_endpoint.format(s=symbol,fi=fechaini,ff=fechafin,hi=horaini,hf=horafin)
     print(url)
-    r = requests.get(url)
+    r = requests.get(url, proxies=proxies)
     return simplejson.loads(r.content)
     
 def segmentos():
