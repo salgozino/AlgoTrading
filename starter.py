@@ -1,18 +1,19 @@
-import botMiron
+from botMiron import botMiron
 from utils.createLogger import createLogger
 
 
 if __name__ == '__main__':
-    user = ''
-    password = ''
-    account = ''
+    user = 'salgozino898'
+    password = 'oeofsZ2*'
+    account = 'REM898'
     db = 'remarkets.db'
     entorno = 1
     logger = createLogger()
-    botMiron.run(user=user, password=password, account=account, entorno=entorno,     db=db)
+    bot = botMiron(user=user, password=password, account=account, entorno=entorno,
+                 db=db)
     
 
-    while not botMiron.stopping.is_set():
+    while not bot.stopping.is_set():
         try:
             pass
         except KeyboardInterrupt:
