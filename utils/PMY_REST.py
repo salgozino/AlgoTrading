@@ -30,10 +30,10 @@ class OrderType(Enum):
 
 # Endpoint
 endpointProd = "https://api.primary.com.ar/"
-endpointSim = "http://pbcp-remarket.cloud.primary.com.ar/"
+endpointSim = "http://api.remarkets.primary.com.ar/"
 # Endpoint WS
 wsEndpointProd = "wss://api.primary.com.ar/"
-wsEndpointSim = "ws://pbcp-remarket.cloud.primary.com.ar/"
+wsEndpointSim = "ws://api.remarkets.primary.com.ar/"
 
 # User y Password para la API - Utilizamos un objeto Session para loguearnos para que se mantega la cookie de sesion en las proximas llamadas
 initialized = False
