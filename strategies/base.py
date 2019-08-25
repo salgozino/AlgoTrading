@@ -43,8 +43,6 @@ class EstrategiaBase():
         #Logger
         self.logger = logging.getLogger(__name__)
 
-    def create_variables(self,variables):
-        pass
 
     def update_current_prices(self):
         """
@@ -95,6 +93,8 @@ class EstrategiaBase():
                 if 'PENDING' in self.order_status:
                     #if status is PENDING, not cancell the order.
                     pass
+                elif 'PARTIALLY' in self.order_status:
+                    self.logger.debug("cumQty: {} |  avgPx: {} | leavesQty: {}".format(self.cumQty, self.avgPx, self.leavesQty))
                 elif self.order_status == 'CANCELLED':
                     self.clOrdId = ''
                     self.property = ''
@@ -102,7 +102,6 @@ class EstrategiaBase():
                 elif self.order_status != 'FILLED':
                     #if the order was not filled, reached a timeout
                     timeout = max_timeout - (datetime.now()-init_time).seconds
-                    
                     if timeout<=0:
                         self.logger.info("TIMEOUT waiting to fill the order. I'm Cancelling the order")
                         self.cancel_order()
