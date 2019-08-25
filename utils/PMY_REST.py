@@ -7,8 +7,6 @@ from enum import Enum
 import logging
 
 
-import os
-os.environ['no_proxy'] = '*' 
 logger = logging.getLogger(__name__)
 proxies = {
   "http": None,
