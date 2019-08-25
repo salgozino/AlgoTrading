@@ -76,8 +76,8 @@ def select_ticker():
                 ticker = 'DoAgo19'
                 
             
-        max_loss = 0
-        while max_loss <20:
+        max_loss = -1
+        while max_loss <0:
             try:
                 max_loss = int(input("Ingrese la máxima perdida que tolera (numero entero mayor o igual a 20): "))
             except:

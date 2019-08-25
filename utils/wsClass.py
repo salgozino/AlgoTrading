@@ -127,7 +127,7 @@ class WebSocketClass():
         """
         self.login()
         if pmy.token != '':
-            #websocket.enableTrace(True)
+            websocket.enableTrace(True)
             headers = {'X-Auth-Token:{token}'.format(token=pmy.token)}
             self.ws = websocket.WebSocketApp(pmy.activeWSEndpoint,
                                        on_message=self.__on_message,
