@@ -16,18 +16,19 @@ def run(user=None, password=None, account=None, entorno=None,db=None):
         ticker, max_loss = select_ticker()
         
         ws = WS(user=user,account=account,entorno=entorno,password=password,
-                db=db)
+                db=db, stopping=stopping)
         
-        #Subscribe to the OrderReport messages
-        ws.subscribeOR()
-
-        est = FollowTheLeader(ws,account=account,ticker=ticker,stopping=stopping, max_loss=max_loss, db=db)
-        t_est = Thread(target=est.run,name='Estrategia')
-        t_est.daemon = True
-        t_est.start()
+        if not stopping.is_set():
+            #Subscribe to the OrderReport messages
+            ws.subscribeOR()
+    
+            est = FollowTheLeader(ws,account=account,ticker=ticker,stopping=stopping, max_loss=max_loss, db=db)
+            t_est = Thread(target=est.run,name='Estrategia')
+            t_est.daemon = True
+            t_est.start()
 
         try:
-            while True:
+            while not stopping.is_set():
                 pass
         except KeyboardInterrupt:
             logger.debug("Clossing the main bot app")

@@ -16,17 +16,18 @@ def run(user=None, password=None, account=None, entorno=None,db=None):
         ws = WS(user=user,account=account,entorno=entorno,password=password,
                 db=db,stopping=stopping, export_to_db = True)
         
-        # Subscribe to the OrderReport messages
-        ws.subscribeOR()
-        
-        #Subscribe to MD
-        entries = ["LA","BI","OF","SE","OI","TV","IV"]
-        tickers = ["RFX20Sep19","RFX20Dic19","I.RFX20","RFXP 09/12 19","DOAgo19","DOSep19","DOP 08/09 19"]
-        ws.subscribeMD(entries=entries,tickers=tickers)
+        if not stopping.is_set():
+            # Subscribe to the OrderReport messages
+            ws.subscribeOR()
+            
+            #Subscribe to MD
+            entries = ["LA","BI","OF","SE","OI","TV","IV"]
+            tickers = ["RFX20Sep19","RFX20Dic19","I.RFX20","RFXP 09/12 19","DOAgo19","DOSep19","DOP 08/09 19"]
+            ws.subscribeMD(entries=entries,tickers=tickers)
         
         
         try:
-            while True:
+            while not stopping.is_set():
                 pass
         except KeyboardInterrupt:
             logger.debug("Clossing the botMiron")

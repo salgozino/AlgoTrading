@@ -3,17 +3,12 @@ import logging
 import simplejson
 from threading import Event,Thread
 from time import sleep
-from datetime import datetime, timedelta
+from datetime import datetime
 from queue import Queue
 import numpy as np
 import utils.PMY_REST as pmy
 import utils.DBtools
 from collections import OrderedDict
-
-#General Quee to process the data and save it to the database
-
-#queue for the strategy class, unique with the order reports 
-#q_orders = Queue()
 
 
 class WebSocketClass():
@@ -49,20 +44,24 @@ class WebSocketClass():
             self.logger.error("Error initializing the thread with the websocket connection")
         
         while self.ws == None:
-            print("Sleeping 1 sec...")
-            sleep(1)
-        conn_timeout = 5
-        while (not self.ws.sock or not self.ws.sock.connected) and conn_timeout:
-            sleep(1)
-            conn_timeout -= 1
-        if not conn_timeout:
-            self.logger.info("Could not connect to WS! Exiting.")
-        
-        if self.export_to_db:
-            self.t_process = Thread(target=self.process, name='Process Messages')
-            self.t_process.daemon = True
-            self.logger.debug("Initializing the thread to process the Messages")
-            self.t_process.start()
+            if self.stopping.is_set():
+                break
+            else:
+                print("Sleeping 1 sec...")
+                sleep(1)
+        if not self.stopping.is_set():
+            conn_timeout = 5
+            while (not self.ws.sock or not self.ws.sock.connected) and conn_timeout:
+                sleep(1)
+                conn_timeout -= 1
+            if not conn_timeout:
+                self.logger.info("Could not connect to WS! Exiting.")
+            
+            if self.export_to_db:
+                self.t_process = Thread(target=self.process, name='Process Messages')
+                self.t_process.daemon = True
+                self.logger.debug("Initializing the thread to process the Messages")
+                self.t_process.start()
         
     def login(self):
         if not pmy.islogin:
@@ -138,6 +137,7 @@ class WebSocketClass():
             self.ws.run_forever(ping_interval=295)
         else:
             self.logger.error("Empty token. Are you sure that the logging was correct?")
+            self.stopping.set()
 
     def extract_features(self, msg):
         """
