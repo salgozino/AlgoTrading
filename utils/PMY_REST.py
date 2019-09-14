@@ -33,6 +33,7 @@ endpointSim = "http://api.remarkets.primary.com.ar/"
 wsEndpointProd = "wss://api.primary.com.ar/"
 wsEndpointSim = "ws://api.remarkets.primary.com.ar/"
 
+
 # User y Password para la API - Utilizamos un objeto Session para loguearnos para que se mantega la cookie de sesion en las proximas llamadas
 initialized = False
 islogin = False
@@ -82,15 +83,18 @@ def requestAPI(url):
         r = requests.get(url, headers=headers, verify=verifyHTTPs, proxies=proxies)
         return r
 
-def md_historica(symbol, fechaini, fechafin):
-    url = history_endpoint.format(s=symbol,fi=fechaini,ff=fechafin)
-    r = requests.get(url, proxies=proxies)
+def md_historica(symbol, dateFrom, dateTo):
+    url = activeEndpoint + "rest/data/getTrades?marketId=ROFX&symbol={s}&dateFrom={df}&dateTo={dt}"
+    url = url.format(s=symbol,df=dateFrom,dt=dateTo)
+    print(url)
+    r = requestAPI(url)
+    print(r.content)
     return simplejson.loads(r.content)
     
-def md_historica_ohlc(symbol, fechaini, fechafin,horaini,horafin):
-    url = historyOHLC_endpoint.format(s=symbol,fi=fechaini,ff=fechafin,hi=horaini,hf=horafin)
+def md_historica_ohlc(symbol, dateFrom, dateTo):
+    url = historyOHLC_endpoint.format(s=symbol,dateFrom=fechaini,dateTo=fechafin)
     print(url)
-    r = requests.get(url, proxies=proxies)
+    r = requestAPI.get(url)
     return simplejson.loads(r.content)
     
 def segmentos():
