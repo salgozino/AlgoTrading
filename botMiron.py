@@ -55,4 +55,5 @@ class botMiron():
 if __name__ == '__main__':
     from utils.createLogger import createLogger
     logger = createLogger()
-    botMiron()
+    bot = botMiron()
+    bot.run()
