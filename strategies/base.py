@@ -4,6 +4,7 @@ import simplejson
 from time import sleep
 from datetime import datetime
 import utils.DBtools
+from utils.porfolio import Porfolio
 from collections import OrderedDict
 
 class EstrategiaBase():
@@ -15,7 +16,7 @@ class EstrategiaBase():
         
         #Porfolio data.
         # A unified new class is better option to handle this variables.
-        self.cash_available = cash_available
+        self.Porfolio = Porfolio(self.WS.user,self.WS.password,self.WS.account,self.WS.entorno)
         self.trade_profit = 0.
         self.total_profit = 0.
         self.comision = comision
@@ -75,7 +76,7 @@ class EstrategiaBase():
         try:
             while self.order_status not in confirmation_status:
                 if not self.q_or.empty():
-                    #self.logger.debug("The strategy catch the new message in the order report!")
+                    self.logger.debug("The strategy catch the new message in the order report!")
                     data = self.q_or.get()
                     or_msg = data['orderReport']
                     # if 'origclOrdId' in or_msg:
@@ -120,9 +121,54 @@ class EstrategiaBase():
             self.logger.exception("Error in the get_order_status. The order and positions are cancelled")
             self.cancel_order()
 
-    def place_order(self,price,side,quantity,ticker=''):
+    def last_order_status_in_q_or(self):
+        """return the last value in the queue, without dequeing"""
+        try:
+            data = self.q_or.queue[-1]
+            return data['orderReport']['status']
+        except:
+            self.logger.exception("Error trying to return the last value in the q_or queue")
+            return ''
+            
+                
+        
+    
+    def get_order_status_no_loop(self):
+        "Function to get the current order status, and exit the function"
+        if not self.q_or.empty():
+            print("queue size: {}".format(self.q_or.qsize()))
+            data = self.q_or.get()
+            or_msg = data['orderReport']
+            # if 'origclOrdId' in or_msg:
+                # origclOrdId = or_msg['clOrdId']
+            
+            self.order_status = or_msg['status']
+            self.clOrdId = or_msg['clOrdId']
+            self.property = or_msg['proprietary']
+            if 'avgPx' in or_msg.keys():
+                self.cumQty = or_msg['cumQty']
+                self.avgPx = or_msg['avgPx']
+                self.leavesQty = or_msg['leavesQty']
+            self.logger.info("Order status: {}".format(self.order_status))
+            
+        else:
+            self.logger.debug("No message in the order queue, the last known order status was: {}".format(self.order_status))
+            print("No message in the order queue, the last known order status was: {}".format(self.order_status))
+        return self.order_status
+    
+            
+    def clean_q_or(self):
+        "Clear the Order queue"
+        if not self.q_or.empty:
+            while not self.q_or.empty():
+                self.q_or.get()
+        else:
+            self.logger.debug("There is no need to remove items from the queue of OR.")
+            
+            
+    def place_order(self,price,side,quantity,ticker='', orderType=''):
         ticker = self.ticker_futuro if ticker == '' else ticker
-        self.WS.placeOrder(ticker=ticker, price=price, side=side, quantity=quantity)
+        self.WS.placeOrder(ticker=ticker, price=price, side=side, quantity=quantity, ordertype="no")
         self.logger.info("An order of {} was sent for {} of {} at price {}".format(side, quantity, ticker, price))
 
     def cancel_order(self):
@@ -316,7 +362,8 @@ class EstrategiaBase():
                     self.position_manager(price,side,quantity)
                     
                     #Duermo por 1 segundo, solo para testing
-                    sleep(1)
+                    #sleep(1)
+                    
             except KeyboardInterrupt:
                 self.logger.debug("The Strategy was stopped by the user.")
                 self.stopping.set()
