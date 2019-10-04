@@ -13,7 +13,7 @@ def createLogger():
     if not os.path.exists('logs'):
         os.makedirs('logs')
     today = datetime.today().strftime('%Y-%m-%d')
-    fh = logging.FileHandler('logs/' + today + ' log.log')
+    fh = logging.FileHandler('logs/' + today + '.log')
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
     # add the handlers to the logger

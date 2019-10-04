@@ -13,7 +13,7 @@ class botMiron():
         self.db = db
         self.logger = logging.getLogger(__name__)
         self.ws = None
-        self.run()
+
         
     def run(self):
         try:
@@ -32,7 +32,7 @@ class botMiron():
                 
                 #Subscribe to MD
                 entries = ["LA","BI","OF","SE","OI","TV","IV"]
-                tickers = ["RFX20Sep19","RFX20Dic19","I.RFX20","RFXP 09/12 19","DOAgo19","DOSep19","DOP 08/09 19","AY24Sep19","AY24DSep19","OROSep19","WTISep19"]
+                tickers = ["RFX20Sep19","RFX20Dic19","I.RFX20","RFXP 09/12 19","DOSep19","DOOct19","DOP 09/10 19","AY24Sep19","AY24DSep19","OROSep19","WTISep19","MERV - XMEV - AY24D - CI","MERV - XMEV - AY24 - CI"]
                 self.ws.subscribeMD(entries=entries,tickers=tickers)
     
             
@@ -55,4 +55,5 @@ class botMiron():
 if __name__ == '__main__':
     from utils.createLogger import createLogger
     logger = createLogger()
-    botMiron()
+    bot = botMiron()
+    bot.run()
