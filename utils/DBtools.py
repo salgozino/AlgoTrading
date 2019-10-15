@@ -174,7 +174,7 @@ def sql_append(data,table,db='rofex.db',conn = None):
     table_sql = cur.execute(query).fetchone()
     if isinstance(table_sql,tuple):
         table_sql = table_sql[0]
-        
+
     try:
         if table_sql != None:
             if table_sql.upper() == table.upper():
@@ -184,8 +184,10 @@ def sql_append(data,table,db='rofex.db',conn = None):
                 cur.execute(query, data)
                 conn.commit()
             else:
+                create_ticker_table(table,db,conn)
                 export_entire_table(data,table,db,conn)
         else:
+            create_ticker_table(table,db,conn)
             export_entire_table(data,table,db,conn)
     except:
         logger.exception("Missing the value due to error in sql_append: Table:{}; data:{}".format(table, data))
