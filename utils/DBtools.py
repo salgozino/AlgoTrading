@@ -12,11 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 def rename_table(table):
+    """
+    rename the table name to remove spaces, comma, dots, hyphens and slashs
+    """
     return table.replace(".","").replace("-","").replace('/','').replace(" ","").upper()
 
 def make_connection(db='rofex.db'):
     """
-    Create the connection with the file
+    Create the connection with the file db.
     """
     try:
         con = sqlite3.connect(db)
@@ -29,12 +32,18 @@ def make_connection(db='rofex.db'):
     return None
 
 def create_db(db_file='rofex.db',schema='schema.sql'):
+    """
+    Create a database file if the file is not found.
+    """
     with open(schema) as fp:
         con = make_connection(db_file)
         cur = con.cursor()
         cur.executescript(fp.read())
 
 def create_ticker_table(table, db='rofex.db',conn=None):
+    """
+    Create a table in the DB with the name provided.
+    """
     table = rename_table(table)
     if conn == None:
         conn = make_connection(db)
@@ -56,18 +65,6 @@ def read_table(table='RFX20Mar19', db = 'rofex.db',conn = None):
     df = pd.read_sql(query, conn)
     return df
 
-def read_table_old(table='RFX20Mar19', db = 'rofex.db',conn = None):
-    """
-    Read all the data in the table specified.
-    The table name is equivalent to the ticker of the asset.
-    """
-    table = rename_table(table)
-    if conn == None:
-        conn = make_connection(db)
-    query = "SELECT * FROM {}".format(table)
-    df = pd.read_sql(query, conn)
-    return df
-    
 def export_entire_table(df, table, db='rofex.db', conn = None):
     """
     Export the entire DF to a table, replacing all the data if the table already axist
@@ -81,13 +78,13 @@ def export_entire_table(df, table, db='rofex.db', conn = None):
             df.set_index('date',inplace=True)
         except:
             logger.debug("No date column for set index in new table")
-    df.to_sql(table, conn, if_exists='replace')
+    df.to_sql(table, conn, if_exists='append')
     conn.commit()
     logger.info("New Table generated for ticker {}".format(table))
     
 def append_rows(df,table, db='rofex.db', conn = None):
     """
-    Append information to the table in the database.
+    Append information to the table dataframe.
     The code will look the last value in the table, and append the new values from the dataFrame
     """
     table = rename_table(table)
@@ -133,7 +130,7 @@ def read_last_price(table,db='rofex.db',conn=None):
 
 def read_last_row(table,db='rofex.db',conn=None):
     """
-    Read the last price of a ticker, from the DB
+    Read the newest information of a ticker, from the DB
     """
     table = rename_table(table)
     if conn == None:
@@ -156,7 +153,7 @@ def read_last_row(table,db='rofex.db',conn=None):
 
 def read_last_row_df(ticker,db='rofex.db',conn=None):
     """
-    Read the last price of a ticker, from the DB
+    Read the newest information of a ticker from the DB, and return a DataFrame
     """
     ticker = rename_table(ticker)
     if conn == None:
@@ -167,7 +164,7 @@ def read_last_row_df(ticker,db='rofex.db',conn=None):
 
 def sql_append(data,table,db='rofex.db',conn = None):
     """
-    En vez de hacer un append desde pandas, lo hago directamente desde sqlite, con la lista de data, antes de pasarlo por dataframe.
+    Append information to the DataBase using SQL query
     """
     table = rename_table(table)
     if conn == None:
@@ -194,6 +191,9 @@ def sql_append(data,table,db='rofex.db',conn = None):
         logger.exception("Missing the value due to error in sql_append: Table:{}; data:{}".format(table, data))
 
 def read_all_tickers(db='rofex.db',conn=None):
+    """
+    Read all the tables from the DataBase
+    """
     if conn == None:
         conn = make_connection(db)
     cur = conn.cursor()
@@ -223,4 +223,4 @@ def read_orders(ticker, start_date='', db='rofex.db', conn=None):
     return df
 
 if __name__ == '__main__':
-    create_ticker_table("test",'../remarkets.db')
+    create_ticker_table("test",'../test.db')
