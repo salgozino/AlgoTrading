@@ -2,6 +2,13 @@
 import utils.PMY_REST as pmy
 
 def select_tickers_pase():
+    """
+    Menu for select the ticker to use for the PASE arbitrator.
+    The menu just can select tickers for ROFEX20 futures, or Dolars futures.
+    
+    Take care selecting the futures, this function not check if exist information
+    in the database.
+    """
     opcion = 0
     while (opcion < 1) or (opcion > 2):
         print("Futuros con pase disponibles para operar:\n * 1: Rofex \n * 2: Dolar")

@@ -3,6 +3,15 @@ from datetime import datetime
 import os
 
 def createLogger():
+    """
+    Function to create a logger that create a log file in the logs dir. The log
+    filename gets the structure of "%Y-%m%d log.log".
+    The log inside the file has a header with %asctime - name - levelname - message.
+    Also, the same logs are printed in the console with a printout handler. In
+    the filename and in the console, are printed message of debug and higger levels.
+    
+    If the logs folder is not found, is created.
+    """
     logger = logging.getLogger()
     logger.propagate = False
     logger.setLevel(logging.DEBUG)
