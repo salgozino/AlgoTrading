@@ -129,8 +129,6 @@ class EstrategiaBase():
         except:
             self.logger.exception("Error trying to return the last value in the q_or queue")
             return ''
-            
-                
         
     
     def get_order_status_no_loop(self):
@@ -167,6 +165,10 @@ class EstrategiaBase():
             
             
     def place_order(self,price,side,quantity,ticker='', orderType=''):
+        if side.upper() == "BUY":
+            if self.Porfolio.currentCash < price*quantity:
+                self.logger.error("You have less money than needed. Your current cash is {} and your trade is for {}".format(self.Porfolio.currentCash, price*quantity))
+                return ''
         ticker = self.ticker_futuro if ticker == '' else ticker
         self.WS.placeOrder(ticker=ticker, price=price, side=side, quantity=quantity, ordertype="no")
         self.logger.info("An order of {} was sent for {} of {} at price {}".format(side, quantity, ticker, price))
