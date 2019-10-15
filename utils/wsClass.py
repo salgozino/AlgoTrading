@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 
 class WebSocketClass():
-    def __init__(self, user="user1", password="password", entorno=1, account='',
+    def __init__(self, user="user1", password="password", account='', entorno=1,
                  stopping=Event(), q_md = Queue(), q_or=Queue(), db='../remarkets.db', export_to_db = False):
         """
         Initialize the websocket connection, until a stopping event is activated.
@@ -63,6 +63,22 @@ class WebSocketClass():
                 self.logger.debug("Initializing the thread to process the Messages")
                 self.t_process.start()
         
+    def clean_q_or(self):
+        "Clear the Order queue"
+        if not self.q_or.empty:
+            while not self.q_or.empty():
+                self.q_or.get()
+        else:
+            self.logger.debug("There is no need to remove items from the queue of OR.")
+                
+    def clean_q_md(self):
+        "Clear the Market Data queue"
+        if not self.q_md.empty:
+            while not self.q_md.empty():
+                self.q_md.get()
+        else:
+            self.logger.debug("There is no need to remove items from the queue of MD.")
+            
     def login(self):
         if not pmy.islogin:
             self.logger.debug("Logging to get the AUTH-TOKEN again")
@@ -70,16 +86,19 @@ class WebSocketClass():
             pmy.login()
             if pmy.islogin:
                 self.logger.debug("Logged to primary")
+                self.is_logged = True
             else:
-                self.logger.error("You are not logged in. Check!")
+                self.logger.error("You are not logged in. Check your credentials or internet connection!")
         else:
             self.logger.debug("You are ALREADY logged in!")
+            self.is_logged = True
 
     def __on_message(self, message):
         try:
             # self.logger.debug("A message was received!")
             msg = simplejson.loads(message)
             #self.logger.debug(msg)
+            print(msg)
             msgType = msg['type'].upper()
             if msgType == 'MD':
                 try:
@@ -126,7 +145,8 @@ class WebSocketClass():
         """
         self.login()
         if pmy.token != '':
-            # websocket.enableTrace(True)
+            #un-Comment to enable the debuggin messages of the WebSocket
+            #websocket.enableTrace(True)
             headers = {'X-Auth-Token:{token}'.format(token=pmy.token)}
             self.ws = websocket.WebSocketApp(pmy.activeWSEndpoint,
                                        on_message=self.__on_message,
@@ -210,8 +230,10 @@ class WebSocketClass():
             #MSG_OSSuscription = simplejson.dumps({"type":"os","account":self.account,"snapshotOnlyActive":'true'})
             self.ws.send(msg)
             self.logger.info("Mensaje de subscripcion al OR enviado.")
+            print("Suscription to OR sent")
         except:
             self.logger.exception("Error trying to subscribe to the Order Report")
+            print("ERROR in the suscription to OR")
 
     def make_MD_msg(self, ticker,entries):
         #Cretae the message to ask the Market Data of the entries for some ticker.
@@ -224,17 +246,25 @@ class WebSocketClass():
             self.ws.send(msg)
             self.logger.info("Mensaje de subscripcion a {} enviado".format(ticker))
 
-    def make_order_msg(self,ticker,price,quantity,side):
-        msg = OrderedDict([("type", "no"), 
-                           ("product", OrderedDict([("symbol",ticker),
-                                                   ("marketId","ROFX")])),
-                           ("price",str(price)),
-                           ("quantity",str(quantity)),
-                           ("side",side),
-                           ("account",self.account)])
+    def make_order_msg(self,ticker,price,quantity,side, ordertype="no"):
+        if ordertype.lower() == "market":
+            msg = OrderedDict([("type", ordertype), 
+                               ("product", OrderedDict([("symbol",ticker),
+                                                       ("marketId","ROFX")])),
+                               ("quantity",str(quantity)),
+                               ("side",side),
+                               ("account",self.account)])
+        else:
+            msg = OrderedDict([("type", ordertype), 
+                               ("product", OrderedDict([("symbol",ticker),
+                                                       ("marketId","ROFX")])),
+                               ("price",str(price)),
+                               ("quantity",str(quantity)),
+                               ("side",side),
+                               ("account",self.account)])
         return simplejson.dumps(msg)
     
-    def placeOrder(self,ticker,price,quantity,side):
+    def placeOrder(self,ticker,price,quantity,side,ordertype):
         msg = self.make_order_msg(ticker,price,quantity,side)
         self.ws.send(msg)
         
@@ -243,13 +273,17 @@ class WebSocketClass():
         self.logger.debug("Deleting the WS and threads")
         self.stopping.set()
         try:
-            self.ws.close()
-            if self.t_ws.isAlive():
-                self.t_ws.join()
-            if self.export_to_db:
-                if self.t_process.isAlive():
-                    self.t_process.join()
-            self.logger.debug("All threads and websocket closed")
+            if hasattr(self.ws,'close'):
+                self.ws.close()
+                if self.t_ws.is_alive():
+                    self.t_ws.join()
+                if self.export_to_db:
+                    if self.t_process.is_alive():
+                        self.t_process.join()
+                self.is_logged = False
+                self.logger.debug("All threads and websocket closed")
+            else:
+                self.logger.debug("No need to close the websocket, is already closed, or never opened")
         except:
             self.logger.exception("Error trying to close the WS and close the thread.")
 
