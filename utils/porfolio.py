@@ -2,6 +2,7 @@ import pandas as pd
 import logging
 from datetime import datetime
 import utils.DBtools
+import utils.PMY_REST as pmy
 """
 Issues:
     Automate determination of the portfolio cash at init!
@@ -12,8 +13,7 @@ class Porfolio():
     Clase para administrar el portfolio.
     Para inicializarla, se necesita conocer la cantidad de cash disponible, y definir una perdida maxima admisible.
     """
-    def __init__(self, cash=0., yearly_rate_free_risk=0.,logger=None, db='remarkets.db'):
-        self.cash = cash
+    def __init__(self, user, password, account, entorno=1, yearly_rate_free_risk=0.,logger=None, db='remarkets.db'):
         self.porfolio = {}
         self.yearly_rate_free_risk = 0.50;
         self.historic_value = pd.DataFrame(columns=['date','PV'])
@@ -24,11 +24,37 @@ class Porfolio():
         self.max_loss = 0  #Max loss 
         self.db = db
         self.logger = logger or logging.getLogger(__name__)
+        self.user = user
+        self.password = password
+        self.account = account
+        self.entorno = entorno
+        self.currentCash = 0.
+        self.accountReport = {}
+        
+        #update current porfolio
+        pmy.init(self.user,self.password,self.account,self.entorno)
+        pmy.login()
+        self.getAccountReport()
+        self.getPorfolio()
 
-
+    def getPorfolio(self):
+        if pmy.islogin:
+            response = pmy.getPositions()
+            self.porfolio = response['positions']
+        else:
+            self.logger.error("You have to be logged to ask for Porfolio")
+            
+    def getAccountReport(self):
+        if pmy.islogin:
+            response = pmy.getAccountReport()
+            self.accountReport = response['accountData']
+            self.currentCash = response['accountData']['currentCash']
+        else:
+            self.logger.error("You have to be logged to ask for Porfolio")
+                
+    
     def add_cash(self,money):
         self.cash += money
-
 
     def buy_stock(self,ticker,price,quantity):
         if self.cash > quantity*price:
@@ -101,7 +127,7 @@ class Porfolio():
 
 if __name__ == '__main__':
 
-    p = Porfolio(cash=100000)
+    p = Porfolio("salgozino898","oeofsZ2*","REM898",1)
     p.buy_stock(ticker='RFX20JUN19',price=45000,quantity=1)
     p.buy_stock(ticker='RFX20SEP19',price=50000,quantity=1)
     print(p.historic_value)
