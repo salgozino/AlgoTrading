@@ -3,3 +3,5 @@ logs/*
 strategies/_*
 _*
 !*/__init__.py
+/*.db
+/rofex.db
