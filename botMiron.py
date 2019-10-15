@@ -32,7 +32,7 @@ class botMiron():
                 
                 #Subscribe to MD
                 entries = ["LA","BI","OF","SE","OI","TV","IV"]
-                tickers = ["RFX20Sep19","RFX20Dic19","I.RFX20","RFXP 09/12 19","DOSep19","DOOct19","DOP 09/10 19","AY24Sep19","AY24DSep19","OROSep19","WTISep19","MERV - XMEV - AY24D - CI","MERV - XMEV - AY24 - CI"]
+                tickers = ["RFX20Dic19","RFX20Mar20","I.RFX20","RFXP 12/03 19","DOOct19","DONov19","DOP 10/11 19","AY24Nov19","ORONov19","WTINov19","GGALOct19",'MERV - XMEV - GGAL']
                 self.ws.subscribeMD(entries=entries,tickers=tickers)
     
             
