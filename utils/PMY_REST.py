@@ -84,7 +84,7 @@ def init(userParam, passwordParam, accountParam, entornoParam, verifyHTTPsParam=
 def login():
     """
     REST submodule
-    Login to the api
+    Login to the api, the init mehotd must be used before.
     """
     #Validamos que se inicializaron los parametros 
     global initialized, activeEndpoint, islogin, token
