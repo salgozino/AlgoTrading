@@ -2,6 +2,7 @@ from threading import Event
 import logging
 from utils.wsClass import WebSocketClass as WS
 from utils.menu import ask_login_credentials
+import utils.PMY_REST as pmy
 
 class botMiron():
     def __init__(self, stopping = Event(), logger = '', user=None, password=None, account=None, entorno=None,db=None):
@@ -25,6 +26,17 @@ class botMiron():
             
             self.ws = WS(user=self.user,account=self.account,entorno=self.entorno,password=self.password,
                     db=self.db,stopping=self.stopping, export_to_db = True)
+            pmy.init(userParam=self.user, passwordParam = self.password, accountParam=self.account, entornoParam=self.entorno, verifyHTTPsParam=True)
+            pmy.login()
+            valid_instruments = pmy.instrumentos()
+            
+            tickers = []
+            instruments = ['RFX20', 'RFXP', 'GGAL', 'AY24', 'AO20', 'YPF', 'WTI', 'ORO']
+            for inst in valid_instruments['instruments']:
+                ticker = inst['instrumentId']['symbol']
+                for s in instruments:
+                    if s in ticker:
+                        tickers.append(ticker)
             
             if not self.stopping.is_set():
                 # Subscribe to the OrderReport messages
@@ -32,7 +44,7 @@ class botMiron():
                 
                 #Subscribe to MD
                 entries = ["LA","BI","OF","SE","OI","TV","IV"]
-                tickers = ["RFX20Dic19","RFX20Mar20","I.RFX20","RFXP 12/03 19","DOOct19","DONov19","DOP 10/11 19","AY24Dic19","ORONov19","WTINov19","GGALOct19",'MERV - XMEV - GGAL']
+                #tickers = ["RFX20Dic19","RFX20Mar20","I.RFX20","RFXP 12/03 19","DOOct19","DONov19","DOP 10/11 19","AY24Dic19","ORONov19","WTINov19","GGALOct19",'MERV - XMEV - GGAL']
                 self.ws.subscribeMD(entries=entries,tickers=tickers)
     
             
