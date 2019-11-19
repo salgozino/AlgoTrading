@@ -31,7 +31,7 @@ class botMiron():
             valid_instruments = pmy.instrumentos()
             
             tickers = []
-            instruments = ['RFX20', 'RFXP', 'GGAL', 'AY24', 'AO20', 'YPF', 'WTI', 'ORO']
+            instruments = ['RFX20', 'RFXP', 'GGAL', 'AY24', 'AO20', 'YPF', 'WTI', 'ORO', 'DO']
             for inst in valid_instruments['instruments']:
                 ticker = inst['instrumentId']['symbol']
                 for s in instruments:
